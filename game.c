@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 // Structures
 struct Match {
@@ -31,11 +32,14 @@ int getNumberOfLines(FILE *);
 TEAM * CreateLeagueTable(MATCH *, int);
 void OrderLeagueTable(TEAM *, int);
 void DisplayLeagueTable(TEAM *, int);
+int SearchTeam(TEAM *, int, char *);
+void capitalize(char *);
 
 int main() {
     FILE * matchRecords;
     MATCH * scoreTable;
     TEAM * leagueTable;
+    char willSearch[80];
 
     char tableFileName[] = "scoretable.txt";
 
@@ -68,6 +72,20 @@ int main() {
     OrderLeagueTable(leagueTable, numOfLines);
     
     DisplayLeagueTable(leagueTable, numOfLines);
+
+    gets(willSearch);
+
+    // Search the team that entered, if it's exist then return the index
+    int indexOf = SearchTeam(leagueTable, numOfLines, willSearch);
+    int rank = indexOf + 1;
+
+    capitalize(willSearch);
+
+    if (indexOf != -1) {
+        printf("%s’s rank is %d!", willSearch, rank);
+    } else {
+        printf("That team is unknown! Please try again!");
+    }
 
     // Close the files that openeed
     fclose(matchRecords);
@@ -202,9 +220,25 @@ void OrderLeagueTable(TEAM * leagueTable, int size) {
 void DisplayLeagueTable(TEAM * leagueTable, int size) {
     size *= 2;
 
-    printf("  Teams            Win    Draw    Loss    Points    Average    Goals\n");
+    printf("  Teams    d        Win    Draw    Loss    Points    Average    Goals\n");
     printf("  ----------------------------------------------------------------------\n");
     for (int i = 0; i < size; i++) {
         printf("  %-14s %3d %4d %7d %7d %9d %10d\n", leagueTable[i].teamName, leagueTable[i].win, leagueTable[i].draw, leagueTable[i].loss, leagueTable[i].points, leagueTable[i].average, leagueTable[i].goals);
     }
+}
+
+int SearchTeam(TEAM * leagueTable, int size, char * willSearch) {
+    size *= 2;
+
+    for (int i = 0; i < size; i++) {
+        if ((strcmp(strlwr(leagueTable[i].teamName), strlwr(willSearch))) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void capitalize(char *s) {
+    *s = toupper(*s); 
 }
